@@ -4,12 +4,14 @@ import Square from './Square';
 import Knight from './Knight';
 import { moveKnight } from './Game';
 import { canMoveKnight } from './Game';
+import { DragDropContextProvider } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
+import BoardSquare from './BoardSquare';
 
-export default class Board extends Component {
-    renderSquare(i) {
+class Board extends Component {
+    renderSquare(i, knightPosition) {
         const x = i % 8;
         const y = Math.floor(i / 8);
-        const black = (x + y) % 2 === 1;
 
         const [knightX, knightY] = this.props.knightPosition;
         const piece = (x === knightX && y === knightY) ?
@@ -18,11 +20,10 @@ export default class Board extends Component {
 
         return (
             <div key={i}
-                style={{ width: '12.5%', height: '12.5%' }}
-                onClick={() => this.handleSquareClick(x, y)}>
-                <Square black={black}>
-                    {piece}
-                </Square>
+                style={{ width: '12.5%', height: '12.5%' }}>
+                <BoardSquare x={x} y={y}>
+                    {renderSquare(x, y, knightPosition)}
+                </BoardSquare>
             </div>
         );
     }
@@ -41,14 +42,16 @@ export default class Board extends Component {
         }
 
         return (
-            <div style={{
-                width: '300px',
-                height: '300px',
-                display: 'flex',
-                flexWrap: 'wrap'
-            }}>
-                {squares}
-            </div>
+            <DragDropContextProvider backend={HTML5Backend}>
+                <div style={{
+                    width: '300px',
+                    height: '300px',
+                    display: 'flex',
+                    flexWrap: 'wrap'
+                }}>
+                    {squares}
+                </div>
+            </DragDropContextProvider>
         );
     }
 }
@@ -58,3 +61,5 @@ Board.propTypes = {
         PropTypes.number.isRequired
     ).isRequired
 };
+
+export default DragDropContextProvider(HTML5Backend)(Board);
